@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Weather Masters — BI Ad Attribution & ROI Report</title>
+  <style>
+    :root{--blue:#1a56db;--blue-light:#e8f0fe;--green:#0e9f6e;--green-light:#def7ec;--orange:#ff5a1f;--orange-light:#fde8d8;--purple:#7c3aed;--purple-light:#ede9fe;--red:#dc2626;--red-light:#fee2e2;--yellow:#d97706;--yellow-light:#fef3c7;--navy:#1E2A5E;--bg:#f3f4f6;--card:#fff;--border:#e5e7eb;--text:#111827;--muted:#6b7280;}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text)}
+    .header{background:linear-gradient(135deg,#1E2A5E 0%,#2a3a7a 100%);color:white;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+    .header-badge{background:rgba(255,255,255,.15);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px}
+    .header-title{font-size:20px;font-weight:800;letter-spacing:-.4px}
+    .header-sub{font-size:12px;opacity:.7;margin-top:3px}
+    .live-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(52,211,153,.2);border:1px solid rgba(52,211,153,.4);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:700}
+    .live-dot{width:8px;height:8px;border-radius:50%;background:#34d399;animation:pulse 1.5s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    .container{max-width:1080px;margin:0 auto;padding:24px 16px}
+    .section-heading{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin:24px 0 10px}
+    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;margin-bottom:20px}
+    .kpi-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;position:relative;overflow:hidden}
+    .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:12px 12px 0 0}
+    .kpi-card.blue::before{background:var(--blue)}.kpi-card.green::before{background:var(--green)}.kpi-card.orange::before{background:var(--orange)}.kpi-card.yellow::before{background:var(--yellow)}.kpi-card.purple::before{background:var(--purple)}.kpi-card.red::before{background:var(--red)}
+    .kpi-icon{font-size:20px;margin-bottom:6px}.kpi-value{font-size:24px;font-weight:800;line-height:1.1}.kpi-label{font-size:10px;color:var(--muted);margin-top:3px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}.kpi-note{font-size:10px;color:var(--muted);margin-top:3px}
+    .source-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-bottom:20px}
+    .source-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+    .source-header{padding:16px 20px;display:flex;align-items:center;gap:12px}
+    .source-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+    .source-icon.blue{background:var(--blue-light)}.source-icon.green{background:var(--green-light)}.source-icon.orange{background:var(--orange-light)}.source-icon.purple{background:var(--purple-light)}
+    .source-title{font-size:15px;font-weight:800}.source-sub{font-size:12px;color:var(--muted);margin-top:2px}
+    .source-body{padding:0 20px 16px}
+    .funnel{display:flex;flex-direction:column;gap:6px;margin:12px 0}
+    .funnel-row{display:flex;align-items:center;gap:10px}
+    .funnel-label{font-size:12px;color:var(--muted);width:110px;flex-shrink:0}
+    .funnel-bar-wrap{flex:1;background:#f3f4f6;border-radius:4px;height:18px;overflow:hidden}
+    .funnel-bar{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:6px;font-size:10px;font-weight:700;color:white;min-width:20px;transition:width .6s ease}
+    .funnel-val{font-size:12px;font-weight:700;width:40px;text-align:right;flex-shrink:0}
+    .stat-mini{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .stat-mini-box{flex:1;min-width:70px;background:var(--bg);border-radius:8px;padding:10px;text-align:center}
+    .stat-mini-val{font-size:18px;font-weight:800}.stat-mini-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-top:2px}
+    .data-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:12px}
+    .data-table th{text-align:left;padding:7px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);border-bottom:2px solid var(--border)}
+    .data-table td{padding:8px 10px;border-bottom:1px solid var(--border)}
+    .data-table tr:last-child td{border-bottom:none}.data-table tr:hover td{background:#f9fafb}
+    .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+    .badge-green{background:var(--green-light);color:var(--green)}.badge-blue{background:var(--blue-light);color:var(--blue)}.badge-orange{background:var(--orange-light);color:var(--orange)}.badge-red{background:var(--red-light);color:var(--red)}.badge-gray{background:#f3f4f6;color:#6b7280}.badge-purple{background:var(--purple-light);color:var(--purple)}
+    .acc-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:10px}
+    .acc-header{padding:16px 20px;cursor:pointer;display:flex;align-items:center;gap:14px;user-select:none;transition:background .15s;flex-wrap:wrap}
+    .acc-header:hover{background:#f9fafb}
+    .acc-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+    .acc-icon.blue{background:var(--blue-light)}.acc-icon.green{background:var(--green-light)}.acc-icon.purple{background:var(--purple-light)}.acc-icon.orange{background:var(--orange-light)}
+    .acc-meta{flex:1;min-width:140px}.acc-title{font-size:15px;font-weight:700}.acc-sub{font-size:12px;color:var(--muted);margin-top:2px}
+    .acc-pill{font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;white-space:nowrap}
+    .acc-pill.green{background:var(--green-light);color:var(--green)}.acc-pill.blue{background:var(--blue-light);color:var(--blue)}.acc-pill.purple{background:var(--purple-light);color:var(--purple)}.acc-pill.orange{background:var(--orange-light);color:var(--orange)}
+    .acc-chevron{font-size:18px;color:var(--muted);transition:transform .25s;flex-shrink:0}
+    .acc-card.open .acc-chevron{transform:rotate(180deg)}
+    .acc-body{display:none;padding:0 20px 18px;border-top:1px solid var(--border)}
+    .acc-card.open .acc-body{display:block}
+    .capi-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.3);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:var(--purple)}
+    .capi-dot{width:7px;height:7px;border-radius:50%;background:var(--purple);animation:pulse 1.5s infinite}
+    .footer{background:var(--navy);color:rgba(255,255,255,.6);text-align:center;padding:14px;font-size:11px;margin-top:32px}
+    .footer strong{color:rgba(255,255,255,.9)}
+    @media(max-width:600px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.source-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div style="display:flex;align-items:center;gap:14px">
+    <div class="header-badge">⚡ BI Enhanced</div>
+    <div>
+      <div class="header-title">Weather Masters of Georgia — BI Ad Attribution & ROI Report</div>
+      <div class="header-sub">Business Intelligence (BI) Report &nbsp;·&nbsp; June 15, 2026 &nbsp;·&nbsp; Powered by Wright AI Labs</div>
+    </div>
+  </div>
+  <div style="text-align:right">
+    <div class="live-badge"><span class="live-dot"></span> Live Data</div>
+    <div style="font-size:11px;opacity:.55;margin-top:4px">
+      <span class="capi-badge"><span class="capi-dot"></span> Meta CAPI Active</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- TOP KPIs -->
+  <div class="section-heading">📊 Attribution Summary — All Paid Channels</div>
+  <div class="kpi-grid">
+    <div class="kpi-card green"><div class="kpi-icon">💰</div><div class="kpi-value" style="color:var(--green)">$95,884</div><div class="kpi-label">Total Attributed Revenue</div><div class="kpi-note">Local Leap + Facebook</div></div>
+    <div class="kpi-card blue"><div class="kpi-icon">📋</div><div class="kpi-value" style="color:var(--blue)">32</div><div class="kpi-label">Total Ad-Sourced Jobs</div><div class="kpi-note">21 LL · 11 Facebook</div></div>
+    <div class="kpi-card purple"><div class="kpi-icon">🎯</div><div class="kpi-value" style="color:var(--purple)">$2,997</div><div class="kpi-label">Avg Job Value</div><div class="kpi-note">Paid ad leads</div></div>
+    <div class="kpi-card orange"><div class="kpi-icon">✅</div><div class="kpi-value" style="color:var(--orange)">75%</div><div class="kpi-label">Completion Rate</div><div class="kpi-note">Local Leap leads</div></div>
+    <div class="kpi-card yellow"><div class="kpi-icon">📡</div><div class="kpi-value" style="color:var(--yellow)">Live</div><div class="kpi-label">Meta CAPI Status</div><div class="kpi-note">Firing as of June 15</div></div>
+    <div class="kpi-card red"><div class="kpi-icon">⚠️</div><div class="kpi-value" style="color:var(--red)">3</div><div class="kpi-label">Canceled LL Jobs</div><div class="kpi-note">Need root cause review</div></div>
+  </div>
+
+  <!-- SOURCE CARDS -->
+  <div class="section-heading">📣 Performance by Channel</div>
+  <div class="source-grid">
+
+    <!-- Local Leap -->
+    <div class="source-card">
+      <div class="source-header">
+        <div class="source-icon green">🌱</div>
+        <div>
+          <div class="source-title">Local Leap Media</div>
+          <div class="source-sub">21 jobs · $60,484 pipeline · Meta CAPI synced</div>
+        </div>
+      </div>
+      <div class="source-body">
+        <div class="funnel">
+          <div class="funnel-row">
+            <div class="funnel-label">Complete</div>
+            <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:57%;background:var(--green)">12</div></div>
+            <div class="funnel-val" style="color:var(--green)">12</div>
+          </div>
+          <div class="funnel-row">
+            <div class="funnel-label">In Progress</div>
+            <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:14%;background:var(--blue)">3</div></div>
+            <div class="funnel-val" style="color:var(--blue)">3</div>
+          </div>
+          <div class="funnel-row">
+            <div class="funnel-label">Scheduled</div>
+            <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:14%;background:var(--yellow)">3</div></div>
+            <div class="funnel-val" style="color:var(--yellow)">3</div>
+          </div>
+          <div class="funnel-row">
+            <div class="funnel-label">Canceled</div>
+            <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:14%;background:var(--red)">3</div></div>
+            <div class="funnel-val" style="color:var(--red)">3</div>
+          </div>
+        </div>
+        <div class="stat-mini">
+          <div class="stat-mini-box"><div class="stat-mini-val" style="color:var(--green)">$60K</div><div class="stat-mini-lbl">Pipeline</div></div>
+          <div class="stat-mini-box"><div class="stat-mini-val" style="color:var(--blue)">$2,880</div><div class="stat-mini-lbl">Avg Job</div></div>
+          <div class="stat-mini-box"><div class="stat-mini-val" style="color:var(--purple)">Active</div><div class="stat-mini-lbl">CAPI</div></div>
+        </div>
+        <div style="margin-top:10px;padding:8px 10px;background:var(--green-light);border-radius:8px;font-size:11px;color:#065f46;">
+          🔗 Meta CAPI live as of June 15 — purchase events firing on completed jobs
+        </div>
+      </div>
+    </div>
+
+    <!-- Facebook -->
+    <div class="source-card">
+      <div class="source-header">
+        <div class="source-icon blue">📘</div>
+        <div>
+          <div class="source-title">Facebook Ads (Direct)</div>
+          <div class="source-sub">11 jobs · $35,400 pipeline · via Claire AI</div>
+        </div>
+      </div>
+      <div class="source-body">
+        <div class="funnel">
+          <div class="funnel-row">
+            <div class="funnel-label">Total Jobs</div>
+            <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:100%;background:var(--blue)">11</div></div>
+            <div class="funnel-val" style="color:var(--blue)">11</div>
+          </div>
+          <div class="funnel-row">
+            <div class="funnel-label">Pipeline Value</div>
+            <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:59%;background:var(--green)"></div></div>
+            <div class="funnel-val" style="color:var(--green)">$35K</div>
+          </div>
+        </div>
+        <div class="stat-mini">
+          <div class="stat-mini-box"><div class="stat-mini-val" style="color:var(--blue)">11</div><div class="stat-mini-lbl">Jobs</div></div>
+          <div class="stat-mini-box"><div class="stat-mini-val" style="color:var(--green)">$35K</div><div class="stat-mini-lbl">Pipeline</div></div>
+          <div class="stat-mini-box"><div class="stat-mini-val" style="color:var(--orange)">$3,218</div><div class="stat-mini-lbl">Avg Job</div></div>
+        </div>
+        <div style="margin-top:10px;padding:8px 10px;background:var(--blue-light);border-radius:8px;font-size:11px;color:#1e40af;">
+          📞 Claire AI answers Facebook leads in seconds — no lead left cold
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- DETAIL SECTIONS -->
+  <div class="section-heading">🔍 Channel Detail — Click to Expand</div>
+
+  <!-- Local Leap Top Jobs -->
+  <div class="acc-card open" onclick="toggle(this)">
+    <div class="acc-header">
+      <div class="acc-icon green">🌱</div>
+      <div class="acc-meta">
+        <div class="acc-title">Local Leap Media — Top Jobs by Value</div>
+        <div class="acc-sub">21 total jobs · $60,484 pipeline · 12 completed</div>
+      </div>
+      <span class="acc-pill green">$60,484</span>
+      <span class="acc-chevron">▾</span>
+    </div>
+    <div class="acc-body">
+      <table class="data-table">
+        <thead><tr><th>Job #</th><th>Customer</th><th>Value</th><th>Status</th><th>CAPI</th></tr></thead>
+        <tbody>
+          <tr><td><strong>#5967</strong></td><td>Jeannine Braham</td><td style="font-weight:700;color:var(--green)">$15,900</td><td><span class="badge badge-green">Complete</span></td><td><span class="badge badge-purple">Fired</span></td></tr>
+          <tr><td><strong>#5980</strong></td><td>Wayne Delk</td><td style="font-weight:700;color:var(--green)">$9,500</td><td><span class="badge badge-green">Complete</span></td><td><span class="badge badge-purple">Fired</span></td></tr>
+          <tr><td><strong>#6032</strong></td><td>Mattie Obie</td><td style="font-weight:700;color:var(--blue)">$9,400</td><td><span class="badge badge-blue">Scheduled</span></td><td><span class="badge badge-gray">Pending</span></td></tr>
+          <tr><td><strong>#5951-1</strong></td><td>Sonya Wilson</td><td style="font-weight:700;color:var(--green)">$9,400</td><td><span class="badge badge-green">Complete</span></td><td><span class="badge badge-purple">Fired</span></td></tr>
+          <tr><td><strong>#5969</strong></td><td>Gallion McElroy</td><td style="font-weight:700;color:var(--green)">$8,881</td><td><span class="badge badge-green">Complete</span></td><td><span class="badge badge-purple">Fired</span></td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:10px;font-size:12px;color:var(--muted)">Showing top 5 of 21 Local Leap jobs · Meta CAPI fires on all completed jobs automatically</div>
+    </div>
+  </div>
+
+  <!-- Meta CAPI Status -->
+  <div class="acc-card" onclick="toggle(this)">
+    <div class="acc-header">
+      <div class="acc-icon purple">📡</div>
+      <div class="acc-meta">
+        <div class="acc-title">Meta CAPI Integration Status</div>
+        <div class="acc-sub">Purchase events firing on completed Local Leap jobs · Zapier bridge retired June 15</div>
+      </div>
+      <span class="acc-pill purple">Live ✓</span>
+      <span class="acc-chevron">▾</span>
+    </div>
+    <div class="acc-body">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:12px">
+        <div style="text-align:center;padding:12px;background:var(--green-light);border-radius:8px;">
+          <div style="font-size:20px;font-weight:800;color:var(--green)">Live</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px;text-transform:uppercase">CAPI Status</div>
+        </div>
+        <div style="text-align:center;padding:12px;background:var(--blue-light);border-radius:8px;">
+          <div style="font-size:20px;font-weight:800;color:var(--blue)">Purchase</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px;text-transform:uppercase">Event Type</div>
+        </div>
+        <div style="text-align:center;padding:12px;background:var(--purple-light);border-radius:8px;">
+          <div style="font-size:20px;font-weight:800;color:var(--purple)">Jun 15</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px;text-transform:uppercase">Live Since</div>
+        </div>
+        <div style="text-align:center;padding:12px;background:var(--red-light);border-radius:8px;">
+          <div style="font-size:20px;font-weight:800;color:var(--red)">Off</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px;text-transform:uppercase">Zapier Bridge</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;padding:10px 14px;background:#f9fafb;border-radius:8px;font-size:12px;color:var(--muted);line-height:1.6">
+        <strong style="color:var(--text)">How it works:</strong> When a Local Leap Media tagged job is marked complete in HCP, Wright AI Labs automatically fires a Meta Purchase conversion event via CAPI. This tells Facebook exactly which ad leads became paying customers — enabling Sean Greene / Local Leap to optimize ad targeting and bidding for higher-value jobs.<br><br>
+        <strong style="color:var(--text)">Pixel ID:</strong> 1156430643079995 · <strong style="color:var(--text)">Partner:</strong> Local Leap Media (Sean Greene)
+      </div>
+    </div>
+  </div>
+
+  <!-- ROI Calculator -->
+  <div class="acc-card" onclick="toggle(this)">
+    <div class="acc-header">
+      <div class="acc-icon orange">📈</div>
+      <div class="acc-meta">
+        <div class="acc-title">ROI Calculator — Coming Live</div>
+        <div class="acc-sub">Ad spend vs. revenue · Cost per acquisition · Return on ad spend (ROAS)</div>
+      </div>
+      <span class="acc-pill orange">Pending Spend Data</span>
+      <span class="acc-chevron">▾</span>
+    </div>
+    <div class="acc-body">
+      <div style="margin-top:14px;padding:16px;background:var(--yellow-light);border-radius:10px;border:1px solid #fde68a;">
+        <div style="font-size:13px;font-weight:700;color:#92400e;margin-bottom:8px;">⚡ What Unlocks ROI Tracking</div>
+        <div style="font-size:12px;color:#78350f;line-height:1.7">
+          Once Local Leap shares monthly ad spend data, this section will auto-calculate:<br>
+          • <strong>Cost Per Acquisition (CPA)</strong> — ad spend ÷ closed jobs<br>
+          • <strong>Return on Ad Spend (ROAS)</strong> — revenue ÷ ad spend<br>
+          • <strong>Revenue per Lead</strong> — by campaign, ad set, and creative<br>
+          • <strong>Best-performing job types</strong> from Meta ads<br><br>
+          <em>Request: Ask Sean Greene to share monthly Local Leap spend for Weather Masters.</em>
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <table class="data-table">
+          <thead><tr><th>Metric</th><th>Current</th><th>Target</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Local Leap Jobs</td><td style="font-weight:700">21</td><td>30+/mo</td><td><span class="badge badge-green">On Track</span></td></tr>
+            <tr><td>Avg Job Value</td><td style="font-weight:700">$2,880</td><td>$3,500+</td><td><span class="badge badge-blue">Growing</span></td></tr>
+            <tr><td>CAPI Attribution</td><td style="font-weight:700">Live</td><td>Live</td><td><span class="badge badge-purple">✓ Active</span></td></tr>
+            <tr><td>Ad Spend Data</td><td style="font-weight:700">Pending</td><td>Monthly</td><td><span class="badge badge-orange">Needs Sean</span></td></tr>
+            <tr><td>ROAS Calculation</td><td style="font-weight:700">Pending</td><td>5x+</td><td><span class="badge badge-gray">Awaiting Data</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <strong>Wright AI Labs — Business Intelligence (BI) Platform</strong> &nbsp;·&nbsp; wrightailabs.com &nbsp;·&nbsp; Meta CAPI Integration by Wright AI Labs &nbsp;·&nbsp; Confidential
+</div>
+
+<script>function toggle(c){c.classList.toggle('open')}</script>
+</body>
+</html>
